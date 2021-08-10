@@ -77,6 +77,16 @@ firmware[18] = 0b00001001100000010100100000010010
 firmware[19] = 0b00000000000000010100000100000000 
               #X <- MDR; GOTO MAIN
 
+#X deslocado para direita
+firmware[20] = 0b000010101_00000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 21
+firmware[21] = 0b000010110_00000010100100000010010 
+              #MAR <- MBR; MDR <- read_word(MAR); GOTO 22
+firmware[22] = 0b000010111_00000010100000100000000 
+              #X <- MDR; GOTO 23
+firmware[23] = 0b000000000_000_10_010100_000100_000_011 
+              #X <- X deslocado
+
 #Y = Y + mem[address]
 firmware[52] = 0b000110101_00000110101001000001001 
               #PC <- PC + 1; MBR <- read_byte(PC); GOTO 53
@@ -94,6 +104,44 @@ firmware[57] = 0b000111010_00000010100100000000010
               #MAR <- MBR; GOTO 58
 firmware[58] = 0b000000000_00000010100010000100100 
               #MDR <- Y; write; GOTO MAIN
+
+#if Y = 0 goto address
+firmware[61]  = 0b000111110_00100010100000100000100 
+              #Y <- Y; IF ALU = 0 GOTO 268 (100001100) ELSE GOTO 62 (000001100);
+firmware[62]  = 0b00000000000000110101001000000001 
+              #PC <- PC + 1; GOTO MAIN;
+firmware[268] = 0b10000110100000110101001000001001 
+              #PC <- PC + 1; fetch; GOTO 269
+firmware[269] = 0b00000000010000010100001000001010 
+              #PC <- MBR; fetch; GOTO MBR;
+
+#Y = Y - mem[address]
+firmware[63] = 0b00000111000000110101001000001001 
+               #PC <- PC + 1; fetch;
+firmware[64] = 0b00000111100000010100100000010010 
+               #MAR <- MBR; read;
+firmware[65] = 0b00001000000000010100000001000000
+               #H <- MDR;
+firmware[66] = 0b00000000000000111111000100000011 
+               #X <- X - H; GOTO MAIN;
+
+#Y = mem[address]
+firmware[67] = 0b00001001000000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 18
+firmware[68] = 0b00001001100000010100100000010010 
+              #MAR <- MBR; MDR <- read_word(MAR); GOTO 19
+firmware[69] = 0b000000000_000_00_010100000100000000 
+              #X <- MDR; GOTO MAIN
+
+#Y deslocado para direita
+firmware[70] = 0b001000111_00000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 71
+firmware[71] = 0b001001000_00000010100100000010010 
+              #MAR <- MBR; MDR <- read_word(MAR); GOTO 72
+firmware[72] = 0b001001001_00000010100_000010_000_000 
+              #Y <- MDR; GOTO 73
+firmware[73] = 0b000000000_000_10_010100_000010_000_100 
+              #Y <- Y deslocado
 
 def read_regs(reg_num):
    global BUS_A, BUS_B, H, MDR, PC, MBR, X, Y

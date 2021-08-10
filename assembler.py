@@ -6,14 +6,15 @@ lines = []
 lines_bin = []
 names = []
 
-instructions = ['add', 'sub', 'goto', 'mov', 'jz', 'halt', 'wb', 'ww', 'let']
+instructions = ['add', 'sub', 'goto', 'mov', 'jz', 'halt', 'wb', 'ww', 'let', 'desl']
 instruction_set = {'add' : 0x02, 
                    'sub' : 0x0D, 
                    'goto': 0x09, 
                    'mov' : 0x06, 
                    'jz'  : 0x0B, 
                    'halt': 0xFF,
-                   'let': 0x11}
+                   'let': 0x11,
+                   'desl': 0x14}
 
 def is_instruction(str):
    global instructions
@@ -80,7 +81,7 @@ def encode_ww(ops):
    return line_bin
       
 def encode_instruction(inst, ops):
-   if inst == 'add' or inst == 'sub' or inst == 'mov' or inst == 'jz' or inst == 'let':
+   if inst == 'add' or inst == 'sub' or inst == 'mov' or inst == 'jz' or inst == 'let' or inst == 'desl':
       return encode_2ops(inst, ops)
    elif inst == 'goto':
       return encode_goto(ops)
@@ -107,6 +108,7 @@ def lines_to_bin_step1():
    for line in lines:
       line_bin = line_to_bin_step1(line)
       if line_bin == []:
+         print(line)
          print("Erro de sintaxe na linha ", lines.index(line))
          return False
       lines_bin.append(line_bin)
@@ -142,7 +144,7 @@ def resolve_names():
    for line in lines_bin:
       for i in range(0, len(line)):
          if is_name(line[i]):
-            if line[i-1] == instruction_set['add'] or line[i-1] == instruction_set['sub'] or line[i-1] == instruction_set['mov'] or line[i-1] == instruction_set['let'] or line[i-1] == 52 or line[i-1] == 56:
+            if line[i-1] == instruction_set['add'] or line[i-1] == instruction_set['sub'] or line[i-1] == instruction_set['mov'] or line[i-1] == instruction_set['desl'] or line[i-1] == instruction_set['let'] or line[i-1] == 52 or line[i-1] == 56 or line[i-1] == 70:
                line[i] = get_name_byte(line[i])//4
             else:
                line[i] = get_name_byte(line[i])
