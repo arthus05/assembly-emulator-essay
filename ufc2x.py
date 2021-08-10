@@ -87,6 +87,22 @@ firmware[22] = 0b000010111_00000010100000100000000
 firmware[23] = 0b000000000_000_10_010100_000100_000_011 
               #X <- X deslocado
 
+# X = X * mem[address]
+firmware[24] = 0b000011001_00000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 25
+firmware[25] = 0b000011010_00000010100100000010010 
+              #MAR <- MBR; MDR <- read_word(MAR); GOTO 26
+firmware[26] = 0b000011011_000_00_010000_000001_000_000
+              #H <- 0; GOTO 27
+firmware[27] = 0b000011100_001_00_010100_000000_000_000
+              #MDR; IF MDR = 0 GOTO 27+256 ELSE GOTO 28
+firmware[28] = 0b000011101_000_00_111100_000001_000_011
+              #H <- H + X; GOTO 29
+firmware[29] = 0b000011011_000_00_110110_010000_000_000
+              #MDR <- MDR - 1; GOTO 27
+firmware[28+256] = 0b000000000_000_00_011000_000100_000_000
+              #X <- H; GOTO MAIN
+
 #Y = Y + mem[address]
 firmware[52] = 0b000110101_00000110101001000001001 
               #PC <- PC + 1; MBR <- read_byte(PC); GOTO 53
@@ -265,6 +281,20 @@ def memory_io(mem_bits):
       
    if mem_bits & 0b100:
       memory.write_word(MAR, MDR)
+
+def debug():
+   print("MIR: ",bin(MIR))
+   print("MPC: ",MPC)
+   print("MAR: ",MAR)
+   print("MDR: ",MDR)
+   print("PC: ",PC)
+   print("MBR: ",MBR)
+   print("X: ",X)
+   print("Y: ",Y)
+   print("H: ",H)
+   print("N: ",N)
+   print("Z: ",Z)
+   print("--------------------------------------------")
       
 def step():
    global MIR, MPC
@@ -274,6 +304,7 @@ def step():
    if MIR == 0:
       return False
       
+   #debug()
    read_regs(MIR & 0b00000000000000000000000000000111)   
    alu((MIR & 0b00000000000011111111000000000000) >> 12)
    write_regs((MIR & 0b00000000000000000000111111000000) >> 6)
