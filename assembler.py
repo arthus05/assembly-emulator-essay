@@ -40,6 +40,10 @@ def encode_2ops(inst, ops):
          if is_name(ops[1]):
             line_bin.append(instruction_set[inst])
             line_bin.append(ops[1])
+      if ops[0] == 'y':
+         if is_name(ops[1]):
+            line_bin.append(instruction_set[inst]+0x32)
+            line_bin.append(ops[1])
    return line_bin
 
 def encode_goto(ops):
@@ -138,7 +142,7 @@ def resolve_names():
    for line in lines_bin:
       for i in range(0, len(line)):
          if is_name(line[i]):
-            if line[i-1] == instruction_set['add'] or line[i-1] == instruction_set['sub'] or line[i-1] == instruction_set['mov'] or line[i-1] == instruction_set['let']:
+            if line[i-1] == instruction_set['add'] or line[i-1] == instruction_set['sub'] or line[i-1] == instruction_set['mov'] or line[i-1] == instruction_set['let'] or line[i-1] == 52:
                line[i] = get_name_byte(line[i])//4
             else:
                line[i] = get_name_byte(line[i])

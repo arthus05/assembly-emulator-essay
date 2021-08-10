@@ -77,6 +77,16 @@ firmware[18] = 0b00001001100000010100100000010010
 firmware[19] = 0b00000000000000010100000100000000 
               #X <- MDR; GOTO MAIN
 
+#Y = Y + mem[address]
+firmware[52] = 0b000110101_00000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 53
+firmware[53] = 0b000110110_00000010100100000010010 
+              #MAR <- MBR; read_word; GOTO 54
+firmware[54] = 0b000110111_00000010100000001000000 
+              #H <- MDR; GOTO 55
+firmware[55] = 0b000000000_000_00_111100_000010_000_100 
+              #Y <- Y + H; GOTO MAIN;
+
 def read_regs(reg_num):
    global BUS_A, BUS_B, H, MDR, PC, MBR, X, Y
    
