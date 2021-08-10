@@ -21,6 +21,54 @@ BUS_C = 0
 
 firmware = array('L', [0]) * 512
 
+#main
+firmware[0] = 0b000000000100001101010010000001001000 
+            #PC <- PC + 1; MBR <- read_byte(PC); GOTO MBR;
+
+#X = X + mem[address]
+firmware[2] = 0b000000011000001101010010000001001000 
+            #PC <- PC + 1; MBR <- read_byte(PC); GOTO 3
+firmware[3] = 0b000000100000000101001000000010010000 
+            #MAR <- MBR; read_word; GOTO 4
+firmware[4] = 0b000000101000000101000000010000000000 
+            #H <- MDR; GOTO 5
+firmware[5] = 0b000000000000001111000001000000011000 
+            #X <- X + H; GOTO MAIN;
+
+#mem[address] = X
+firmware[6] = 0b000000111000001101010010000001001000 
+            #PC <- PC + 1; fetch; GOTO 7
+firmware[7] = 0b000001000000000101001000000000010000 
+            #MAR <- MBR; GOTO 8
+firmware[8] = 0b000000000000000101000100000100011000 
+            #MDR <- X; write; GOTO MAIN
+
+#goto address
+firmware[9]  = 0b000001010000001101010010000001001000 
+            #PC <- PC + 1; fetch; GOTO 10
+firmware[10] = 0b000000000100000101000010000001010000 
+            #PC <- MBR; fetch; GOTO MBR;
+
+#if X = 0 goto address
+firmware[11]  = 0b000001100001000101000001000000011000 
+            #X <- X; IF ALU = 0 GOTO 268 (100001100) ELSE GOTO 12 (000001100);
+firmware[12]  = 0b000000000000001101010010000000001000 
+            #PC <- PC + 1; GOTO MAIN;
+firmware[268] = 0b100001101000001101010010000001001000 
+            #PC <- PC + 1; fetch; GOTO 269
+firmware[269] = 0b000000000100000101000010000001010000 
+            #PC <- MBR; fetch; GOTO MBR;
+
+#X = X - mem[address]
+firmware[13] = 0b000001110000001101010010000001001000 
+            #PC <- PC + 1; fetch;
+firmware[14] = 0b000001111000000101001000000010010000 
+            #MAR <- MBR; read;
+firmware[15] = 0b000010000000000101000000010000000000
+            #H <- MDR;
+firmware[16] = 0b000000000000001111110001000000011000 
+            #X <- X - H; GOTO MAIN;
+
 def read_regs(reg_num):
    global BUS_A, BUS_B, H, MDR, PC, MBR, X, Y
    
