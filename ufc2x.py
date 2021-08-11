@@ -103,6 +103,24 @@ firmware[29] = 0b000011011_000_00_110110_010000_000_000
 firmware[28+256] = 0b000000000_000_00_011000_000100_000_000
               #X <- H; GOTO MAIN
 
+# X = resto de (X / mem[address])
+firmware[29] = 0b000011110_00000110101001000001001 
+              #PC <- PC + 1; MBR <- read_byte(PC); GOTO 30
+firmware[30] = 0b000011111_00000010100100000010010 
+              #MAR <- MBR; MDR <- read_word(MAR); GOTO 31
+firmware[31] = 0b000100000_000_00_010000_000010_000_000
+              #Y <- 0; GOTO 32
+firmware[32] = 0b000100001_000_00_010100_000001_000_000
+              #H <- MDR; GOTO 33
+firmware[33] = 0b000100010_000_11_111111_000010_000_011
+              #Y <- (X - H)>>31; GOTO 34
+firmware[34] = 0b000100011_010_00_010100_000000_000_100
+              #Y; IF ALU != 0 GOTO 35+256 ELSE 35
+firmware[35] = 0b000100001_000_00_111111_000100_000_011
+              #X <- X - H; GOTO 33
+firmware[35+256] = 0b000000000_00_010000_000000_000_001
+              #GOTO MAIN
+
 #Y = Y + mem[address]
 firmware[52] = 0b000110101_00000110101001000001001 
               #PC <- PC + 1; MBR <- read_byte(PC); GOTO 53
@@ -248,7 +266,7 @@ def alu(control_bits):
    elif shift_bits == 0b10:
       o = o >> 1
    elif shift_bits == 0b11:
-      o = o << 8
+      o = o >> 31
       
    BUS_C = o
    
