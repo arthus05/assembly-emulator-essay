@@ -299,20 +299,6 @@ def memory_io(mem_bits):
       
    if mem_bits & 0b100:
       memory.write_word(MAR, MDR)
-
-def debug():
-   print("MIR: ",bin(MIR))
-   print("MPC: ",MPC)
-   print("MAR: ",MAR)
-   print("MDR: ",MDR)
-   print("PC: ",PC)
-   print("MBR: ",MBR)
-   print("X: ",X)
-   print("Y: ",Y)
-   print("H: ",H)
-   print("N: ",N)
-   print("Z: ",Z)
-   print("--------------------------------------------")
       
 def step():
    global MIR, MPC
@@ -322,7 +308,6 @@ def step():
    if MIR == 0:
       return False
       
-   #debug()
    read_regs(MIR & 0b00000000000000000000000000000111)   
    alu((MIR & 0b00000000000011111111000000000000) >> 12)
    write_regs((MIR & 0b00000000000000000000111111000000) >> 6)
