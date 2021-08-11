@@ -1,7 +1,7 @@
      goto main 
      wb 0        
     
-n    ww 10
+n    ww 5
 um   ww 1
 aux  ww 1
 
